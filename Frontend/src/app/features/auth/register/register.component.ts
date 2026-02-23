@@ -1,101 +1,112 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth.service';
 import { SpecialityService } from '../../../core/services/speciality.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Speciality } from '../../../core/models/models';
+import { fadeIn } from '../../../shared/animations/animations';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  animations: [fadeIn],
+  host: { '[@fadeIn]': '' },
   template: `
     <div class="min-h-[80vh] flex items-center justify-center py-8">
-      <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Register</h2>
+      <mat-card class="w-full max-w-lg">
+        <mat-card-header class="justify-center! mb-4!">
+          <mat-card-title class="text-2xl!">
+            <mat-icon class="text-blue-600! align-middle! mr-2">person_add</mat-icon>Register
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form (ngSubmit)="onSubmit()" class="space-y-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Full Name</mat-label>
+              <mat-icon matPrefix>person</mat-icon>
+              <input matInput type="text" [(ngModel)]="form.name" name="name" required />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <mat-icon matPrefix>email</mat-icon>
+              <input matInput type="email" [(ngModel)]="form.email" name="email" required />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Password</mat-label>
+              <mat-icon matPrefix>lock</mat-icon>
+              <input matInput type="password" [(ngModel)]="form.password" name="password" required minlength="6" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Phone</mat-label>
+              <mat-icon matPrefix>phone</mat-icon>
+              <input matInput type="text" [(ngModel)]="form.phone" name="phone" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Register as</mat-label>
+              <mat-select [(ngModel)]="form.role" name="role" required>
+                <mat-option value="PATIENT">Patient</mat-option>
+                <mat-option value="DOCTOR">Doctor</mat-option>
+              </mat-select>
+            </mat-form-field>
 
-        @if (error) {
-          <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">{{ error }}</div>
-        }
+            @if (form.role === 'DOCTOR') {
+              <mat-form-field appearance="outline">
+                <mat-label>Speciality</mat-label>
+                <mat-select [(ngModel)]="form.specialityId" name="specialityId" required>
+                  @for (s of specialities; track s.id) {
+                    <mat-option [value]="s.id">{{ s.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Degree</mat-label>
+                <mat-icon matPrefix>school</mat-icon>
+                <input matInput type="text" [(ngModel)]="form.degree" name="degree" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Experience</mat-label>
+                <mat-icon matPrefix>work</mat-icon>
+                <input matInput type="text" [(ngModel)]="form.experience" name="experience" placeholder="e.g. 5 years" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Consultation Fee</mat-label>
+                <mat-icon matPrefix>payments</mat-icon>
+                <input matInput type="number" [(ngModel)]="form.fees" name="fees" />
+              </mat-form-field>
+            }
 
-        <form (ngSubmit)="onSubmit()" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-            <input type="text" [(ngModel)]="form.name" name="name" required
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" [(ngModel)]="form.email" name="email" required
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" [(ngModel)]="form.password" name="password" required minlength="6"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-            <input type="text" [(ngModel)]="form.phone" name="phone"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Register as</label>
-            <select [(ngModel)]="form.role" name="role" required
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="PATIENT">Patient</option>
-              <option value="DOCTOR">Doctor</option>
-            </select>
-          </div>
-
-          @if (form.role === 'DOCTOR') {
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Speciality</label>
-              <select [(ngModel)]="form.specialityId" name="specialityId" required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option [ngValue]="null" disabled>Select speciality</option>
-                @for (s of specialities; track s.id) {
-                  <option [ngValue]="s.id">{{ s.name }}</option>
-                }
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Degree</label>
-              <input type="text" [(ngModel)]="form.degree" name="degree"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
-              <input type="text" [(ngModel)]="form.experience" name="experience" placeholder="e.g. 5 years"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Consultation Fee</label>
-              <input type="number" [(ngModel)]="form.fees" name="fees"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
-            </div>
-          }
-
-          <button type="submit" [disabled]="loading"
-            class="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50">
-            {{ loading ? 'Registering...' : 'Register' }}
-          </button>
-        </form>
-
-        <p class="text-center text-sm text-gray-500 mt-4">
-          Already have an account? <a routerLink="/login" class="text-blue-600 hover:underline">Login</a>
-        </p>
-      </div>
+            <button mat-flat-button color="primary" type="submit" [disabled]="loading" class="w-full! py-2.5!">
+              @if (loading) {
+                <mat-spinner diameter="20" class="inline-block! mr-2"></mat-spinner>
+              }
+              {{ loading ? 'Registering...' : 'Register' }}
+            </button>
+          </form>
+        </mat-card-content>
+        <mat-card-actions class="justify-center! pb-4!">
+          <p class="text-sm text-gray-500">
+            Already have an account? <a routerLink="/login" class="text-blue-600 hover:underline font-medium">Login</a>
+          </p>
+        </mat-card-actions>
+      </mat-card>
     </div>
   `
 })
 export class RegisterComponent implements OnInit {
   form: any = { name: '', email: '', password: '', phone: '', role: 'PATIENT', specialityId: null, degree: '', experience: '', fees: null };
   specialities: Speciality[] = [];
-  error = '';
   loading = false;
 
-  constructor(private auth: AuthService, private specialityService: SpecialityService, private router: Router) {}
+  constructor(private auth: AuthService, private specialityService: SpecialityService, private router: Router, private notify: NotificationService) {}
 
   ngOnInit() {
     this.specialityService.getAll().subscribe(s => this.specialities = s);
@@ -103,7 +114,6 @@ export class RegisterComponent implements OnInit {
 
   onSubmit() {
     this.loading = true;
-    this.error = '';
     this.auth.register(this.form).subscribe({
       next: (res) => {
         this.loading = false;
@@ -113,7 +123,7 @@ export class RegisterComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.error = err.error?.message || 'Registration failed';
+        this.notify.error(err.error?.message || 'Registration failed');
       }
     });
   }

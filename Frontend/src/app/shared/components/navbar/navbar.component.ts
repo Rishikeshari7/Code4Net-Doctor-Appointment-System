@@ -1,47 +1,53 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, MatToolbarModule, MatButtonModule, MatIconModule],
   template: `
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 items-center">
-          <a routerLink="/" class="text-xl font-bold text-blue-600">HospitalBook</a>
+    <mat-toolbar class="bg-white! shadow-sm! border-b border-gray-200 h-16!">
+      <div class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
+        <a routerLink="/" class="flex items-center gap-2 no-underline">
+          <mat-icon class="text-blue-600!">local_hospital</mat-icon>
+          <span class="text-xl font-bold text-blue-600">HospitalBook</span>
+        </a>
 
-          @if (auth.isLoggedIn()) {
-            <div class="flex items-center gap-4">
-              @if (auth.getRole() === 'ADMIN') {
-                <a routerLink="/admin/dashboard" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Dashboard</a>
-                <a routerLink="/admin/doctors" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Doctors</a>
-                <a routerLink="/admin/patients" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Patients</a>
-                <a routerLink="/admin/doctor-approval" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Approvals</a>
-              }
-              @if (auth.getRole() === 'DOCTOR') {
-                <a routerLink="/doctor/dashboard" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Dashboard</a>
-                <a routerLink="/doctor/appointments" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Appointments</a>
-                <a routerLink="/doctor/profile" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Profile</a>
-              }
-              @if (auth.getRole() === 'PATIENT') {
-                <a routerLink="/patient/dashboard" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Doctors</a>
-                <a routerLink="/patient/my-bookings" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">My Bookings</a>
-                <a routerLink="/patient/profile" routerLinkActive="text-blue-600" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Profile</a>
-              }
-              <span class="text-sm text-gray-500 ml-2">{{ auth.getUser()?.name }}</span>
-              <button (click)="auth.logout()" class="text-sm text-red-500 hover:text-red-700 font-medium cursor-pointer">Logout</button>
-            </div>
-          } @else {
-            <div class="flex items-center gap-3">
-              <a routerLink="/login" class="text-sm text-gray-600 hover:text-blue-600 font-medium">Login</a>
-              <a routerLink="/register" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">Register</a>
-            </div>
-          }
-        </div>
+        @if (auth.isLoggedIn()) {
+          <div class="flex items-center gap-1">
+            @if (auth.getRole() === 'ADMIN') {
+              <a mat-button routerLink="/admin/dashboard" routerLinkActive="text-blue-600!">Dashboard</a>
+              <a mat-button routerLink="/admin/doctors" routerLinkActive="text-blue-600!">Doctors</a>
+              <a mat-button routerLink="/admin/patients" routerLinkActive="text-blue-600!">Patients</a>
+              <a mat-button routerLink="/admin/doctor-approval" routerLinkActive="text-blue-600!">Approvals</a>
+            }
+            @if (auth.getRole() === 'DOCTOR') {
+              <a mat-button routerLink="/doctor/dashboard" routerLinkActive="text-blue-600!">Dashboard</a>
+              <a mat-button routerLink="/doctor/appointments" routerLinkActive="text-blue-600!">Appointments</a>
+              <a mat-button routerLink="/doctor/profile" routerLinkActive="text-blue-600!">Profile</a>
+            }
+            @if (auth.getRole() === 'PATIENT') {
+              <a mat-button routerLink="/patient/dashboard" routerLinkActive="text-blue-600!">Doctors</a>
+              <a mat-button routerLink="/patient/my-bookings" routerLinkActive="text-blue-600!">My Bookings</a>
+              <a mat-button routerLink="/patient/profile" routerLinkActive="text-blue-600!">Profile</a>
+            }
+            <span class="text-sm text-gray-500 ml-3">{{ auth.getUser()?.name }}</span>
+            <button mat-button color="warn" (click)="auth.logout()">
+              <mat-icon>logout</mat-icon> Logout
+            </button>
+          </div>
+        } @else {
+          <div class="flex items-center gap-2">
+            <a mat-button routerLink="/login">Login</a>
+            <a mat-flat-button color="primary" routerLink="/register">Register</a>
+          </div>
+        }
       </div>
-    </nav>
+    </mat-toolbar>
   `
 })
 export class NavbarComponent {

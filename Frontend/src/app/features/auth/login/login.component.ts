@@ -1,56 +1,72 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { fadeIn } from '../../../shared/animations/animations';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  animations: [fadeIn],
+  host: { '[@fadeIn]': '' },
   template: `
     <div class="min-h-[80vh] flex items-center justify-center">
-      <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Login</h2>
-
-        @if (error) {
-          <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">{{ error }}</div>
-        }
-
-        <form (ngSubmit)="onSubmit()" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" [(ngModel)]="email" name="email" required
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" placeholder="you@example.com" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" [(ngModel)]="password" name="password" required
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" placeholder="••••••" />
-          </div>
-          <button type="submit" [disabled]="loading"
-            class="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50">
-            {{ loading ? 'Logging in...' : 'Login' }}
-          </button>
-        </form>
-
-        <p class="text-center text-sm text-gray-500 mt-4">
-          Don't have an account? <a routerLink="/register" class="text-blue-600 hover:underline">Register</a>
-        </p>
-      </div>
+      <mat-card class="w-full max-w-md">
+        <mat-card-header class="justify-center! mb-4!">
+          <mat-card-title class="text-2xl!">
+            <mat-icon class="text-blue-600! align-middle! mr-2">login</mat-icon>Login
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form (ngSubmit)="onSubmit()" class="space-y-4">
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <mat-icon matPrefix>email</mat-icon>
+              <input matInput type="email" [(ngModel)]="email" name="email" required placeholder="you@example.com" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Password</mat-label>
+              <mat-icon matPrefix>lock</mat-icon>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" required placeholder="••••••" />
+              <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="submit" [disabled]="loading" class="w-full! py-2.5!">
+              @if (loading) {
+                <mat-spinner diameter="20" class="inline-block! mr-2"></mat-spinner>
+              }
+              {{ loading ? 'Logging in...' : 'Login' }}
+            </button>
+          </form>
+        </mat-card-content>
+        <mat-card-actions class="justify-center! pb-4!">
+          <p class="text-sm text-gray-500">
+            Don't have an account? <a routerLink="/register" class="text-blue-600 hover:underline font-medium">Register</a>
+          </p>
+        </mat-card-actions>
+      </mat-card>
     </div>
   `
 })
 export class LoginComponent {
   email = '';
   password = '';
-  error = '';
   loading = false;
+  hidePassword = true;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router, private notify: NotificationService) {}
 
   onSubmit() {
     this.loading = true;
-    this.error = '';
     this.auth.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
         this.loading = false;
@@ -60,7 +76,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.error = err.error?.message || 'Login failed';
+        this.notify.error(err.error?.message || 'Login failed');
       }
     });
   }

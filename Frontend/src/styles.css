@@ -1,1 +1,61 @@
-@import "tailwindcss";
+@use '@angular/material' as mat;
+
+/* Tailwind: import theme + utilities only (skip preflight — it resets Material styles) */
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$blue-palette,
+      tertiary: mat.$green-palette,
+      theme-type: light,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+/* Global overrides */
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+/* Left padding on input fields */
+.mat-mdc-form-field .mdc-text-field__input,
+.mat-mdc-form-field .mat-mdc-select {
+  padding-left: 4px !important;
+}
+
+/* Drop shadow on all Material cards */
+.mat-mdc-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+}
+
+/* Border on all Material buttons */
+.mat-mdc-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-icon-button {
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Gray background on dropdown panels and datepicker */
+.mat-mdc-select-panel,
+.mat-datepicker-content {
+  background-color: #f3f4f6 !important;
+}
+
+/* Snackbar colors */
+.snack-success .mdc-snackbar__surface {
+  background-color: #065f46 !important;
+}
+.snack-error .mdc-snackbar__surface {
+  background-color: #991b1b !important;
+}
